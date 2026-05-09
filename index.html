@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Angel's Garden</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ═══════════════════════════════════════
+           LUXURY RADIO PLAYER — Cozy Sanctuary
+        ═══════════════════════════════════════ */
+
+        :root {
+            --espresso:   #1A110B;
+            --charcoal:   #221610;
+            --obsidian:   #2C1E14;
+            --cream:      #E2CEAD;
+            --cream-dim:  #9A8A72;
+            --amber:      #C8823A;
+            --amber-glow: rgba(200, 130, 58, 0.28);
+            --honey:      #D4892F;
+            --gold-muted: #B87A30;
+            --border:     rgba(200, 130, 58, 0.18);
+        }
+
+        #player-shell {
+            background: var(--espresso);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow:
+                0 4px 24px rgba(0,0,0,0.6),
+                0 0 0 0.5px rgba(200,130,58,0.1) inset;
+            animation: amberPulse 4s ease-in-out infinite;
+            margin-top: 8px;
+        }
+
+        @keyframes amberPulse {
+            0%, 100% { box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 12px var(--amber-glow); }
+            50%       { box-shadow: 0 4px 32px rgba(0,0,0,0.7), 0 0 28px var(--amber-glow); }
+        }
+
+        /* ── Header Row ── */
+        #player-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 14px;
+            cursor: pointer;
+            user-select: none;
+            background: linear-gradient(135deg, var(--charcoal), var(--obsidian));
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+        #player-header:active { background: var(--obsidian); }
+
+        /* Audio bars */
+        .audio-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        .audio-bars span {
+            display: block;
+            width: 3px;
+            border-radius: 2px;
+            background: var(--amber);
+            animation-duration: 1.1s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+        }
+        .audio-bars span:nth-child(1) { height: 6px;  animation-name: bar1; }
+        .audio-bars span:nth-child(2) { height: 14px; animation-name: bar2; animation-delay: 0.2s; }
+        .audio-bars span:nth-child(3) { height: 9px;  animation-name: bar3; animation-delay: 0.4s; }
+        .audio-bars span:nth-child(4) { height: 5px;  animation-name: bar4; animation-delay: 0.15s; }
+
+        @keyframes bar1 { 0%,100%{height:5px}  50%{height:16px} }
+        @keyframes bar2 { 0%,100%{height:14px} 50%{height:5px}  }
+        @keyframes bar3 { 0%,100%{height:8px}  50%{height:18px} }
+        @keyframes bar4 { 0%,100%{height:12px} 50%{height:5px}  }
+
+        #now-playing {
+            flex: 1;
+            font-size: 12px;
+            color: var(--cream);
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #now-playing span { color: var(--cream-dim); font-size: 10px; }
+
+        .expand-arrow {
+            color: var(--amber);
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+        .expand-arrow.open { transform: rotate(180deg); }
+
+        /* ── Category Tabs ── */
+        #spotify-tabs {
+            display: flex;
+            gap: 0;
+            background: var(--charcoal);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        #spotify-tabs::-webkit-scrollbar { display: none; }
+
+        #spotify-tabs .tab {
+            flex: 1;
+            min-width: 56px;
+            padding: 7px 4px;
+            border: none;
+            background: transparent;
+            color: var(--cream-dim);
+            font-size: 11px;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        #spotify-tabs .tab.active {
+            color: var(--cream);
+            border-bottom: 2px solid var(--amber);
+            background: rgba(200,130,58,0.06);
+        }
+
+        /* ── Playlist Chips ── */
+        #spotify-chips {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            overflow-x: auto;
+            background: var(--espresso);
+            scrollbar-width: none;
+        }
+        #spotify-chips::-webkit-scrollbar { display: none; }
+
+        #spotify-chips .chip {
+            flex-shrink: 0;
+            padding: 4px 11px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: transparent;
+            color: var(--cream-dim);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #spotify-chips .chip.active {
+            background: var(--honey);
+            border-color: var(--honey);
+            color: var(--espresso);
+            font-weight: 600;
+            box-shadow: 0 0 10px rgba(212, 137, 47, 0.4);
+        }
+        #spotify-chips .chip.empty {
+            opacity: 0.45;
+            cursor: default;
+            border-style: dashed;
+        }
+
+        /* ── Iframe Wrapper ── */
+        #iframe-wrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--espresso);
+        }
+        #iframe-wrapper iframe {
+            display: block;
+            width: 100%;
+            border-radius: 0 0 18px 18px;
+            opacity: 0.93;
+            transition: height 0.3s ease;
+        }
+
+        /* ── Portrait fallback (agar koi portrait mein dekhe) ── */
+        @media (orientation: portrait) {
+            #player-header { padding: 13px 16px; }
+            #spotify-tabs .tab { padding: 9px 6px; font-size: 12px; }
+            #spotify-chips { padding: 10px 14px; }
+            #spotify-chips .chip { padding: 6px 13px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <video autoplay muted loop id="main-video-bg">
+        <source src="assets/videos/main_sanctuary.mp4" type="video/mp4">
+    </video>
+
+    <div id="media-dock" class="hidden-dock">
+        <div class="swipe-handle"></div>
+        <div class="controls">
+            <div id="track-info">Nature: Rainy Night</div>
+            <button onclick="toggleAudio()">Play/Pause</button>
+
+            <!-- ══ LUXURY PLAYER SHELL ══ -->
+            <div id="player-shell">
+
+                <!-- Collapsed Header -->
+                <div id="player-header" onclick="toggleExpand()">
+                    <div class="audio-bars">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                    <div id="now-playing">Loading…</div>
+                    <div class="expand-arrow" id="expand-arrow">▾</div>
+                </div>
+
+                <!-- Category Tabs -->
+                <div id="spotify-tabs">
+                    <button class="tab active" onclick="switchTab('vibe')">✨ Vibe</button>
+                    <button class="tab" onclick="switchTab('nature')">🌿 Nature</button>
+                    <button class="tab" onclick="switchTab('peace')">☁️ Peace</button>
+                    <button class="tab" onclick="switchTab('sleep')">🌙 Sleep</button>
+                    <button class="tab" onclick="switchTab('youtube')">📺 YouTube</button>
+                </div>
+
+                <!-- Playlist Chips -->
+                <div id="spotify-chips"></div>
+
+                <!-- Media iframe — expands on tap -->
+                <div id="iframe-wrapper">
+                    <iframe
+                        id="spotify-iframe"
+                        src=""
+                        height="80"
+                        frameBorder="0"
+                        allowfullscreen=""
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy">
+                    </iframe>
+                </div>
+
+            </div>
+            <!-- ══ END PLAYER SHELL ══ -->
+
+        </div>
+    </div>
+
+    <canvas id="doodle-canvas"></canvas>
+
+    <div id="interaction-layer">
+        <div id="cat-trigger" onclick="playHapticPurr()"></div>
+        <div id="envelope-trigger" onclick="openHiddenNote()"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // ─────────────────────────────────────────
+        //  PLAYLIST CONFIG
+        //  id: "" = coming soon, fill karo baad mein
+        // ─────────────────────────────────────────
+        const PLAYLISTS = {
+            vibe: [
+                { label: "<3",       id: "4BfoTqY9raoUES0uUijrxr", type: "playlist" },
+                { label: "Angrezii", id: "1rkrR0VIW4Iw9IUDRUwuJt", type: "playlist" },
+                { label: "Indie",    id: "5o69MAfV9BkOI35l5wjpGn", type: "playlist" },
+                { label: "Dance",    id: "3QhyaUGJtmnV7XNlYIsiJm", type: "playlist" },
+                { label: "Gazals",   id: "3xIsMYKCv3WgdLtGbseASz", type: "playlist" },
+                { label: "Retro",    id: "1Phz1s9ZjaJe0b6mfEisSi", type: "playlist" },
+                { label: "Album",    id: "0LZ0J0uxtSPbBbW05n42gZ", type: "album"    },
+            ],
+            nature: [
+                { label: "Forest",       id: "37i9dQZF1DX4PP3DA4J0N8", type: "playlist" },
+                { label: "Rain",         id: "1vm8GNDZzYEkVQcoArNySo", type: "playlist" },
+                { label: "Thunder",      id: "0nFIMpdeDoWR5IxXazXBiw", type: "album"    },
+                { label: "Nature Noice", id: "37i9dQZF1DWUKPeBypcpcP", type: "playlist" },
+                { label: "Calm",         id: "",                        type: "playlist" }, // ← baad mein dalna
+            ],
+            peace: [
+                { label: "Peace", id: "5MoyOu6s9tJoy1XZ2SGc1k", type: "playlist" },
+                { label: "Shiva", id: "3CEFGOFlG7S7PJyJHErSyu", type: "playlist" },
+            ],
+            sleep: [
+                { label: "Cuddles", id: "6Ad8DpdjkMMpw1nE0xr7KK", type: "playlist" },
+            ],
+            youtube: [
+                { label: "Slice of Life", id: "PLdY5DIkkwk41EFlKFiaJnTcuJxDE8MyTA", type: "youtube" },
+                { label: "Calm",          id: "PLdY5DIkkwk40AsbA2BADPEi2esPM8z-bz", type: "youtube" },
+                { label: "Nature",        id: "PLdY5DIkkwk40p7F0Z7a6dqYTdcKiR404K", type: "youtube" },
+                { label: "Bowling",       id: "PLdY5DIkkwk42rXKp4tWZ8eGQ9PCBfK6Ed", type: "youtube" },
+            ],
+        };
+
+        // Heights per platform — landscape mein YouTube chhota
+        function getIframeH(type) {
+            const portrait = window.innerWidth < window.innerHeight;
+            if (type === 'youtube') return portrait ? '200' : '150';
+            return '80';
+        }
+        function getWrapperH(type) {
+            const portrait = window.innerWidth < window.innerHeight;
+            if (type === 'youtube') return portrait ? '220px' : '170px';
+            return '100px';
+        }
+
+        let currentTab  = "vibe";
+        let currentChip = 0;
+        let isExpanded  = false;
+
+        // ── Toggle iframe expand ──
+        function toggleExpand() {
+            isExpanded = !isExpanded;
+            const wrapper = document.getElementById('iframe-wrapper');
+            const p = PLAYLISTS[currentTab][currentChip];
+            wrapper.style.maxHeight = isExpanded ? getWrapperH(p?.type) : '0px';
+            document.getElementById('expand-arrow').classList.toggle('open', isExpanded);
+        }
+
+        // ── Switch category tab ──
+        function switchTab(tab) {
+            currentTab  = tab;
+            currentChip = 0;
+            const map = { vibe:'Vibe', nature:'Nature', peace:'Peace', sleep:'Sleep', youtube:'YouTube' };
+            document.querySelectorAll('#spotify-tabs .tab').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(map[tab]));
+            });
+            renderChips();
+            loadPlaylist(0);
+        }
+
+        // ── Render playlist chips ──
+        function renderChips() {
+            const container = document.getElementById('spotify-chips');
+            container.innerHTML = '';
+            PLAYLISTS[currentTab].forEach((p, i) => {
+                const isEmpty = !p.id;
+                const btn = document.createElement('button');
+                btn.className = 'chip' + (i === currentChip ? ' active' : '') + (isEmpty ? ' empty' : '');
+                btn.textContent = isEmpty ? `${p.label} ·` : p.label;
+                btn.onclick = () => {
+                    if (isEmpty) return;
+                    currentChip = i;
+                    document.querySelectorAll('#spotify-chips .chip')
+                        .forEach((c, ci) => c.classList.toggle('active', ci === i));
+                    loadPlaylist(i);
+                    if (!isExpanded) toggleExpand();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        // ── Load playlist into iframe ──
+        function loadPlaylist(index) {
+            const p = PLAYLISTS[currentTab][index];
+            const iframe = document.getElementById('spotify-iframe');
+            const wrapper = document.getElementById('iframe-wrapper');
+
+            // Empty ID guard
+            if (!p.id) {
+                document.getElementById('now-playing').innerHTML =
+                    `${p.label} &nbsp;<span>Coming soon…</span>`;
+                return;
+            }
+
+            // YouTube vs Spotify
+            if (p.type === 'youtube') {
+                iframe.src = `https://www.youtube.com/embed/videoseries?list=${p.id}&autoplay=1`;
+                iframe.height = getIframeH('youtube');
+                if (isExpanded) wrapper.style.maxHeight = getWrapperH('youtube');
+            } else {
+                iframe.src = `https://open.spotify.com/embed/${p.type}/${p.id}?utm_source=generator&theme=0`;
+                iframe.height = getIframeH('spotify');
+                if (isExpanded) wrapper.style.maxHeight = getWrapperH('spotify');
+            }
+
+            const catLabel = {
+                vibe:'✨ Vibe', nature:'🌿 Nature',
+                peace:'☁️ Peace', sleep:'🌙 Sleep', youtube:'📺 YouTube'
+            };
+            document.getElementById('now-playing').innerHTML =
+                `${p.label} &nbsp;<span>${catLabel[currentTab]}</span>`;
+        }
+
+        // Init
+        renderChips();
+        loadPlaylist(0);
+    </script>
+</body>
+</html>
