@@ -1,0 +1,13 @@
+{
+  "appId": "com.nikudev.angelsgarden",
+  "appName": "The Angel's Garden",
+  "webDir": ".",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}
