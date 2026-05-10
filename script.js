@@ -115,6 +115,10 @@ splashNote.onclick = () => {
 function openHiddenNote() {
     // Envelope modal logic — extend here
     console.log('Hidden note opened');
+
+    // Check if new message exists in config
+if(config.new_message) {
+    document.getElementById('envelope-img').classList.add('glow-active');
 }
 function openHiddenNote() {
     const noteOverlay = document.createElement('div');
