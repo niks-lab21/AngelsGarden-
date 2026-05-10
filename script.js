@@ -120,32 +120,39 @@ function openHiddenNote() {
 if(config.new_message) {
     document.getElementById('envelope-img').classList.add('glow-active');
 }
+// ─────────────────────────────────────────
+//  TYPEWRITER EFFECT FOR THE HIDDEN NOTE
+// ─────────────────────────────────────────
 function openHiddenNote() {
+    const fullText = `You found it! ❤️\n\nJust a small gesture for you, My Sweetheart. I hope you like it... Welcome to this tiny world of yours.\n\nAnd no worries, I’m not gonna start with those same old lines here. We both know that. I’m sorry for not keeping up with my words sometimes, My Baby... ❤️\n\nNothing is expected from you here. You are enough. You don’t have to do anything.\n\nJust be.\n\nIt’s your world. Just stay, relax, and breathe.\n\nI love you, My Sweetheart. 😚❤️🎀`;
+
     const noteOverlay = document.createElement('div');
     noteOverlay.id = 'hidden-note-overlay';
     noteOverlay.innerHTML = `
         <div class="note-content">
-            </p>You found it! ❤️<br><br>
-
-Just a small gesture for you, my darling.<br>
-I hope you like it...<br>
-Welcome to this tiny world of yours.<br><br>
-
-And no worries, I’m not gonna start with those same old lines here.<br>
-We both know that.<br>
-I’m sorry for not keeping up with my words sometimes, my baby... ❤️<br><br>
-
-Nothing is expected from you here.<br>
-You are enough.<br>
-You don’t have to do anything.<br><br>
-
-Just be.<br>
-It’s your world.<br>
-Just stay and relax.<br><br>
-
-I love you, my Sweetheart. 😚❤️🎀</p>
-            <button onclick="this.parentElement.parentElement.remove()">Close</button>
+            <div id="typewriter-text" style="white-space: pre-wrap; line-height: 1.6;"></div>
+            <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; background: transparent; border: 1px solid #1a110b; padding: 5px 15px; border-radius: 5px; font-family: inherit;">Close</button>
         </div>
     `;
     document.body.appendChild(noteOverlay);
+
+    let i = 0;
+    const speed = 40; // Typing speed in ms
+    function typeWriter() {
+        if (i < fullText.length) {
+            document.getElementById("typewriter-text").innerHTML += fullText.charAt(i);
+            i++;
+            setTimeout(typeWriter, speed);
+        }
+    }
+    typeWriter();
+    
+    // Envelope ka glow band kardo jab read ho jaye
+    document.getElementById('envelope-img').classList.remove('glow-active');
 }
+
+// Ensure envelope glows on start (for demo)
+window.onload = () => {
+    const envelope = document.getElementById('envelope-img');
+    if(envelope) envelope.classList.add('glow-active');
+};
