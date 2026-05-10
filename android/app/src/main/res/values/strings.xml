@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">The Angel\'s Garden</string>
+    <string name="title_activity_main">The Angel\'s Garden</string>
+    <string name="package_name">com.nikudev.angelsgarden</string>
+    <string name="custom_url_scheme">com.nikudev.angelsgarden</string>
+</resources>
