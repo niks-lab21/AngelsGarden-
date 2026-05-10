@@ -116,3 +116,32 @@ function openHiddenNote() {
     // Envelope modal logic — extend here
     console.log('Hidden note opened');
 }
+function openHiddenNote() {
+    const noteOverlay = document.createElement('div');
+    noteOverlay.id = 'hidden-note-overlay';
+    noteOverlay.innerHTML = `
+        <div class="note-content">
+            </p>You found it! ❤️<br><br>
+
+Just a small gesture for you, my darling.<br>
+I hope you like it...<br>
+Welcome to this tiny world of yours.<br><br>
+
+And no worries, I’m not gonna start with those same old lines here.<br>
+We both know that.<br>
+I’m sorry for not keeping up with my words sometimes, my baby... ❤️<br><br>
+
+Nothing is expected from you here.<br>
+You are enough.<br>
+You don’t have to do anything.<br><br>
+
+Just be.<br>
+It’s your world.<br>
+Just stay and relax.<br><br>
+
+I love you, my Sweetheart. 😚❤️🎀</p>
+            <button onclick="this.parentElement.parentElement.remove()">Close</button>
+        </div>
+    `;
+    document.body.appendChild(noteOverlay);
+}
