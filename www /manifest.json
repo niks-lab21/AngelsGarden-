@@ -1,0 +1,24 @@
+manifest.json
+0.40 KB•21 lines
+Formatting may be inconsistent from source
+
+{
+  "name": "The Angel's Garden",
+  "short_name": "AngelsGarden",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#1A110B",
+  "theme_color": "#C8823A",
+  "icons": [
+    {
+      "src": "assets/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
