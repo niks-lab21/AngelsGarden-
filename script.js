@@ -45,24 +45,13 @@ function draw(e) {
     ctx.beginPath();
     ctx.moveTo(touch.clientX, touch.clientY);
 }
+
 // Artist Platter Functions
-function updateBrushSize(val) {
-    brushSize = val;
-}
+function updateBrushSize(val) { brushSize = val; }
+function setBrush(type) { brushType = type; }
+function updateColor(color) { brushColor = color; }
+function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-function setBrush(type) {
-    brushType = type;
-    // Visual feedback: Brushes ke beech switch karne par alert ya subtle change de sakte ho
-}
-
-function updateColor(color) {
-    brushColor = color;
-}
-
-// Doodle clear karne ke liye optional function (if you want to add a button)
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
 // ─────────────────────────────────────────
 //  AUDIO
 // ─────────────────────────────────────────
@@ -110,18 +99,7 @@ splashNote.onclick = () => {
 };
 
 // ─────────────────────────────────────────
-//  HIDDEN NOTE — Envelope Modal
-// ─────────────────────────────────────────
-function openHiddenNote() {
-    // Envelope modal logic — extend here
-    console.log('Hidden note opened');
-
-    // Check if new message exists in config
-if(config.new_message) {
-    document.getElementById('envelope-img').classList.add('glow-active');
-}
-// ─────────────────────────────────────────
-//  TYPEWRITER EFFECT FOR THE HIDDEN NOTE
+//  HIDDEN NOTE — Envelope Modal & Typewriter
 // ─────────────────────────────────────────
 function openHiddenNote() {
     const fullText = `You found it! ❤️\n\nJust a small gesture for you, My Sweetheart. I hope you like it... Welcome to this tiny world of yours.\n\nAnd no worries, I’m not gonna start with those same old lines here. We both know that. I’m sorry for not keeping up with my words sometimes, My Baby... ❤️\n\nNothing is expected from you here. You are enough. You don’t have to do anything.\n\nJust be.\n\nIt’s your world. Just stay, relax, and breathe.\n\nI love you, My Sweetheart. 😚❤️🎀`;
@@ -131,7 +109,7 @@ function openHiddenNote() {
     noteOverlay.innerHTML = `
         <div class="note-content">
             <div id="typewriter-text" style="white-space: pre-wrap; line-height: 1.6;"></div>
-            <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; background: transparent; border: 1px solid #1a110b; padding: 5px 15px; border-radius: 5px; font-family: inherit;">Close</button>
+            <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; background: transparent; border: 1px solid #1a110b; padding: 5px 15px; border-radius: 5px; font-family: inherit; cursor: pointer;">Close</button>
         </div>
     `;
     document.body.appendChild(noteOverlay);
@@ -148,10 +126,11 @@ function openHiddenNote() {
     typeWriter();
     
     // Envelope ka glow band kardo jab read ho jaye
-    document.getElementById('envelope-img').classList.remove('glow-active');
+    const envelope = document.getElementById('envelope-img');
+    if(envelope) envelope.classList.remove('glow-active');
 }
 
-// Ensure envelope glows on start (for demo)
+// Ensure envelope glows on start
 window.onload = () => {
     const envelope = document.getElementById('envelope-img');
     if(envelope) envelope.classList.add('glow-active');
