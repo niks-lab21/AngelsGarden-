@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Angel's Garden</title>
@@ -180,20 +181,40 @@
             transition: height 0.3s ease;
         }
 
-        /* ── Portrait fallback (agar koi portrait mein dekhe) ── */
+        /* ── Landscape — compact layout ── */
+        @media (orientation: landscape) {
+            #player-header  { padding: 7px 12px; }
+            #spotify-tabs .tab { padding: 5px 4px; font-size: 10px; }
+            #spotify-chips  { padding: 6px 10px; }
+            #spotify-chips .chip { padding: 3px 10px; font-size: 10px; }
+        }
+
+        /* ── Portrait ── */
         @media (orientation: portrait) {
-            #player-header { padding: 13px 16px; }
+            #player-header  { padding: 13px 16px; }
             #spotify-tabs .tab { padding: 9px 6px; font-size: 12px; }
-            #spotify-chips { padding: 10px 14px; }
+            #spotify-chips  { padding: 10px 14px; }
             #spotify-chips .chip { padding: 6px 13px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
+
+    <!-- ══ SPLASH OVERLAY — inside body, first ══ -->
+    <div id="splash-overlay">
+        <video id="intro-video" src="assets/videos/splash.mp4" muted playsinline autoplay></video>
+        <div id="splash-note" class="hidden">
+            <p>A safe sanctuary for you my Sweetheart...</p>
+            <span>(Tap to enter)</span>
+        </div>
+    </div>
+
+    <!-- Background video -->
     <video autoplay muted loop id="main-video-bg">
         <source src="assets/videos/main_sanctuary.mp4" type="video/mp4">
     </video>
 
+    <!-- Media Dock -->
     <div id="media-dock" class="hidden-dock">
         <div class="swipe-handle"></div>
         <div class="controls">
@@ -244,6 +265,15 @@
     </div>
 
     <canvas id="doodle-canvas"></canvas>
+    <div id="artist-platter">
+    <div id="brush-options">
+        <button onclick="setBrush('ink-bleed')">💧</button>
+        <button onclick="setBrush('perfect-circle')">⭕</button>
+        <button onclick="setBrush('soft-glow')">✨</button>
+    </div>
+    <input type="range" class="brush-slider" min="1" max="50" value="5" oninput="updateBrushSize(this.value)">
+    <input type="color" id="color-picker" onchange="updateColor(this.value)" value="#ffffff">
+</div>
 
     <div id="interaction-layer">
         <div id="cat-trigger" onclick="playHapticPurr()"></div>
@@ -254,7 +284,7 @@
     <script>
         // ─────────────────────────────────────────
         //  PLAYLIST CONFIG
-        //  id: "" = coming soon, fill karo baad mein
+        //  id: "" = coming soon, fill later
         // ─────────────────────────────────────────
         const PLAYLISTS = {
             vibe: [
@@ -271,7 +301,7 @@
                 { label: "Rain",         id: "1vm8GNDZzYEkVQcoArNySo", type: "playlist" },
                 { label: "Thunder",      id: "0nFIMpdeDoWR5IxXazXBiw", type: "album"    },
                 { label: "Nature Noice", id: "37i9dQZF1DWUKPeBypcpcP", type: "playlist" },
-                { label: "Calm",         id: "",                        type: "playlist" }, // ← baad mein dalna
+                { label: "Calm",         id: "",                        type: "playlist" },
             ],
             peace: [
                 { label: "Peace", id: "5MoyOu6s9tJoy1XZ2SGc1k", type: "playlist" },
@@ -288,7 +318,7 @@
             ],
         };
 
-        // Heights per platform — landscape mein YouTube chhota
+        // Orientation-aware heights
         function getIframeH(type) {
             const portrait = window.innerWidth < window.innerHeight;
             if (type === 'youtube') return portrait ? '200' : '150';
@@ -304,7 +334,7 @@
         let currentChip = 0;
         let isExpanded  = false;
 
-        // ── Toggle iframe expand ──
+        // Toggle iframe expand
         function toggleExpand() {
             isExpanded = !isExpanded;
             const wrapper = document.getElementById('iframe-wrapper');
@@ -313,7 +343,7 @@
             document.getElementById('expand-arrow').classList.toggle('open', isExpanded);
         }
 
-        // ── Switch category tab ──
+        // Switch category tab
         function switchTab(tab) {
             currentTab  = tab;
             currentChip = 0;
@@ -325,7 +355,7 @@
             loadPlaylist(0);
         }
 
-        // ── Render playlist chips ──
+        // Render playlist chips
         function renderChips() {
             const container = document.getElementById('spotify-chips');
             container.innerHTML = '';
@@ -346,10 +376,10 @@
             });
         }
 
-        // ── Load playlist into iframe ──
+        // Load playlist into iframe
         function loadPlaylist(index) {
-            const p = PLAYLISTS[currentTab][index];
-            const iframe = document.getElementById('spotify-iframe');
+            const p       = PLAYLISTS[currentTab][index];
+            const iframe  = document.getElementById('spotify-iframe');
             const wrapper = document.getElementById('iframe-wrapper');
 
             // Empty ID guard
@@ -359,20 +389,20 @@
                 return;
             }
 
-            // YouTube vs Spotify
+            // YouTube vs Spotify — FIX: pass p.type directly
             if (p.type === 'youtube') {
-                iframe.src = `https://www.youtube.com/embed/videoseries?list=${p.id}&autoplay=1`;
+                iframe.src    = `https://www.youtube.com/embed/videoseries?list=${p.id}&autoplay=1`;
                 iframe.height = getIframeH('youtube');
                 if (isExpanded) wrapper.style.maxHeight = getWrapperH('youtube');
             } else {
-                iframe.src = `https://open.spotify.com/embed/${p.type}/${p.id}?utm_source=generator&theme=0`;
-                iframe.height = getIframeH('spotify');
-                if (isExpanded) wrapper.style.maxHeight = getWrapperH('spotify');
+                iframe.src    = `https://open.spotify.com/embed/${p.type}/${p.id}?utm_source=generator&theme=0`;
+                iframe.height = getIframeH(p.type); // ← fixed
+                if (isExpanded) wrapper.style.maxHeight = getWrapperH(p.type); // ← fixed
             }
 
             const catLabel = {
-                vibe:'✨ Vibe', nature:'🌿 Nature',
-                peace:'☁️ Peace', sleep:'🌙 Sleep', youtube:'📺 YouTube'
+                vibe: '✨ Vibe', nature: '🌿 Nature',
+                peace: '☁️ Peace', sleep: '🌙 Sleep', youtube: '📺 YouTube'
             };
             document.getElementById('now-playing').innerHTML =
                 `${p.label} &nbsp;<span>${catLabel[currentTab]}</span>`;
