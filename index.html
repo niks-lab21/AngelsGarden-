@@ -205,8 +205,9 @@
             if (p.type === 'youtube') {
                 iframe.src = `https://www.youtube.com/embed/videoseries?list=${p.id}&autoplay=1`;
             } else {
-                iframe.src = `https://open.spotify.com/embed/${p.type}/${p.id}?utm_source=generator&theme=0`;
+    iframe.src = "https://open.spotify.com/embed/" + p.type + "/" + p.id + "?utm_source=generator&theme=0";
             }
+        
             document.getElementById('now-playing').innerHTML = `${p.label} <span>${currentTab.toUpperCase()}</span>`;
             renderChips();
         }
