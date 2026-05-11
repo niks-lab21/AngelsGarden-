@@ -1,60 +1,39 @@
 name: Build Android APK
+
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: npm install
-      - run: |
-          cat > android/capacitor.settings.gradle << 'EOF'
-          def capacitorExtrasPath = "../node_modules/@capacitor/android/capacitor"
-          include ':capacitor-android'
-          project(':capacitor-android').projectDir = new File(capacitorExtrasPath)
-          include ':capacitor-cordova-android-plugins'
-          project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins')
-          EOF
-          cat > android/app/capacitor.build.gradle << 'EOF'
-          android {
-            compileOptions {
-              sourceCompatibility JavaVersion.VERSION_17
-              targetCompatibility JavaVersion.VERSION_17
-            }
-          }
-          EOF
-          mkdir -p android/capacitor-cordova-android-plugins/src/main/libs
-          cat > android/capacitor-cordova-android-plugins/build.gradle << 'EOF'
-          apply plugin: 'com.android.library'
-          android {
-            namespace "com.getcapacitor.cordova"
-            compileSdkVersion 34
-            defaultConfig {
-              minSdkVersion 22
-              targetSdkVersion 34
-            }
-          }
-          EOF
-          cat > android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-          </manifest>
-          EOF
-      - uses: actions/setup-java@v3
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-      - uses: android-actions/setup-android@v2
-      - run: mkdir -p android/app/src/main/assets/public && cp -r www/. android/app/src/main/assets/public/ || true
-      - run: chmod +x android/gradlew
-      - run: cd android && ./gradlew assembleDebug
+          
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        
+      # ✅ THE CRITICAL FIX: Use cap sync instead of manual cp
+      - name: Sync Capacitor
+        run: npx cap sync android
+        
+      - name: Build Debug APK
+        run: cd android && ./gradlew assembleDebug
+        
       - uses: actions/upload-artifact@v4
         with:
           name: angels-garden-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
-        
