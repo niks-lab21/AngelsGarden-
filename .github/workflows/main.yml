@@ -18,6 +18,15 @@ jobs:
           include ':capacitor-android'
           project(':capacitor-android').projectDir = new File(capacitorExtrasPath)
           EOF
+      - run: |
+          cat > android/app/capacitor.build.gradle << 'EOF'
+          android {
+            compileOptions {
+              sourceCompatibility JavaVersion.VERSION_21
+              targetCompatibility JavaVersion.VERSION_21
+            }
+          }
+          EOF
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
