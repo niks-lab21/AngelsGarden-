@@ -17,8 +17,9 @@ jobs:
           def capacitorExtrasPath = "../node_modules/@capacitor/android/capacitor"
           include ':capacitor-android'
           project(':capacitor-android').projectDir = new File(capacitorExtrasPath)
+          include ':capacitor-cordova-android-plugins'
+          project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins')
           EOF
-      - run: |
           cat > android/app/capacitor.build.gradle << 'EOF'
           android {
             compileOptions {
@@ -26,6 +27,23 @@ jobs:
               targetCompatibility JavaVersion.VERSION_21
             }
           }
+          EOF
+          mkdir -p android/capacitor-cordova-android-plugins/src/main/libs
+          cat > android/capacitor-cordova-android-plugins/build.gradle << 'EOF'
+          apply plugin: 'com.android.library'
+          android {
+            namespace "com.getcapacitor.cordova"
+            compileSdkVersion 34
+            defaultConfig {
+              minSdkVersion 22
+              targetSdkVersion 34
+            }
+          }
+          EOF
+          cat > android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+          </manifest>
           EOF
       - uses: actions/setup-java@v3
         with:
