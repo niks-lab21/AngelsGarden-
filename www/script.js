@@ -81,6 +81,12 @@ function toggleAudio() {
 const introVideo   = document.getElementById('intro-video');
 const splashNote   = document.getElementById('splash-note');
 const splashOverlay = document.getElementById('splash-overlay');
+const splashAudio = new Audio('assets/audio/splash_audio.mp3');
+
+document.addEventListener('click', function startSplashAudio() {
+    splashAudio.play();
+    document.removeEventListener('click', startSplashAudio);
+}, { once: true });
 
 introVideo.addEventListener('timeupdate', function () {
     if (this.currentTime >= 13) splashNote.classList.add('visible');
