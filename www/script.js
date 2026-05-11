@@ -59,6 +59,12 @@ const rainSound = new Audio('assets/audio/ambient/rain_loop.mp3');
 rainSound.loop = true;
 
 const purrSound = new Audio('assets/audio/cat_purr.mp3');
+const splashAudio = new Audio('assets/audio/splash_audio.mp3');
+
+splashOverlay.addEventListener('click', function startAll() {
+    splashAudio.play();
+    splashOverlay.removeEventListener('click', startAll);
+}, { once: true });
 
 function playHapticPurr() {
     purrSound.play();
