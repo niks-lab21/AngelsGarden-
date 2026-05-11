@@ -1,11 +1,18 @@
 // ─────────────────────────────────────────
+//  HTML ELEMENTS SETUP (Upar move kiya taaki error na aaye)
+// ─────────────────────────────────────────
+const canvas        = document.getElementById('doodle-canvas');
+const ctx           = canvas.getContext('2d');
+const introVideo    = document.getElementById('intro-video');
+const splashNote    = document.getElementById('splash-note');
+const splashOverlay = document.getElementById('splash-overlay');
+
+// ─────────────────────────────────────────
 //  CANVAS — Doodle Layer
 // ─────────────────────────────────────────
-const canvas = document.getElementById('doodle-canvas');
-const ctx    = canvas.getContext('2d');
-let drawing   = false;
-let brushSize = 5;
-let brushType = 'ink-bleed';
+let drawing    = false;
+let brushSize  = 5;
+let brushType  = 'ink-bleed';
 let brushColor = '#ffffff';
 
 function resizeCanvas() {
@@ -15,15 +22,25 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-canvas.addEventListener('touchstart', startDrawing);
-canvas.addEventListener('touchmove',  draw);
+// { passive: false } zaroori hai taaki preventDefault() kaam kare mobile par
+canvas.addEventListener('touchstart', startDrawing, { passive: false });
+canvas.addEventListener('touchmove',  draw, { passive: false });
 canvas.addEventListener('touchend',   stopDrawing);
 
-function startDrawing(e) { drawing = true; draw(e); }
-function stopDrawing()   { drawing = false; ctx.beginPath(); }
+function startDrawing(e) { 
+    e.preventDefault(); // Screen scroll hone se rokega
+    drawing = true; 
+    draw(e); 
+}
+function stopDrawing() { 
+    drawing = false; 
+    ctx.beginPath(); 
+}
 
 function draw(e) {
     if (!drawing) return;
+    e.preventDefault(); // Screen scroll hone se rokega
+
     const touch = e.touches[0];
     ctx.lineWidth   = brushSize;
     ctx.lineCap     = 'round';
@@ -53,12 +70,11 @@ function updateColor(color) { brushColor = color; }
 function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
 // ─────────────────────────────────────────
-//  AUDIO
+//  AUDIO SETUP
 // ─────────────────────────────────────────
-const rainSound = new Audio('assets/audio/ambient/rain_loop.mp3');
-rainSound.loop = true;
-
-const purrSound = new Audio('assets/audio/cat_purr.mp3');
+const rainSound   = new Audio('assets/audio/ambient/rain_loop.mp3');
+rainSound.loop    = true;
+const purrSound   = new Audio('assets/audio/cat_purr.mp3');
 const splashAudio = new Audio('assets/audio/splash_audio.mp3');
 
 splashOverlay.addEventListener('click', function startAll() {
@@ -84,10 +100,6 @@ function toggleAudio() {
 // ─────────────────────────────────────────
 //  SPLASH — Intro Video + Sanctuary Entry
 // ─────────────────────────────────────────
-const introVideo   = document.getElementById('intro-video');
-const splashNote   = document.getElementById('splash-note');
-const splashOverlay = document.getElementById('splash-overlay');
-
 introVideo.addEventListener('timeupdate', function () {
     if (this.currentTime >= 13) splashNote.classList.add('visible');
     if (this.currentTime >= 17) {
