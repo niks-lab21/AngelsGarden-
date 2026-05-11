@@ -1,4 +1,4 @@
-package com.nikudev.angelsgarden;
+package com.niks.angelsgarden;
 
 import android.os.Bundle;
 import android.webkit.WebView;
