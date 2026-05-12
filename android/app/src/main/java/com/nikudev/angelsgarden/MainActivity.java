@@ -2,6 +2,7 @@ package com.nikudev.angelsgarden;
 
 import android.os.Bundle;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
@@ -9,11 +10,9 @@ public class MainActivity extends BridgeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Get WebView from bridge and configure it properly
+        // Capacitor 5: bridge is a protected field, not a getter
         WebView webView = bridge.getWebView();
         WebSettings settings = webView.getSettings();
         settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
     }
 }
