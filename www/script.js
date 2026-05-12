@@ -149,7 +149,7 @@ function openHiddenNote() {
 }
 
 // Ensure envelope glows on start
-window.onload = () => {
+document.addEventListener('DOMContentLoaded', () => {
     const envelope = document.getElementById('envelope-img');
     if(envelope) envelope.classList.add('glow-active');
-};
+});
