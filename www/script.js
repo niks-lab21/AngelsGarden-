@@ -100,21 +100,43 @@ function toggleAudio() {
 // ─────────────────────────────────────────
 //  SPLASH — Intro Video + Sanctuary Entry
 // ─────────────────────────────────────────
+
+// ── SPLASH ──
 introVideo.addEventListener('timeupdate', function () {
     if (this.currentTime >= 13) splashNote.classList.add('visible');
     if (this.currentTime >= 17) {
         this.pause();
-        this.currentTime = 17; // Lotus par freeze
+        this.currentTime = 17;
     }
 });
+
+// Fallback: if video fails to load, show note after 3 seconds
+setTimeout(() => {
+    if (!splashNote.classList.contains('visible')) {
+        splashNote.classList.add('visible');
+    }
+}, 3000);
 
 splashNote.onclick = () => {
     splashOverlay.style.opacity = '0';
     setTimeout(() => {
         splashOverlay.style.display = 'none';
-        rainSound.play(); // Room mein enter hote hi baarish shuru
+        try {
+            rainSound.play();
+        } catch(e) {
+            console.log('Audio play failed:', e);
+        }
     }, 1000);
 };
+
+splashOverlay.addEventListener('click', function startAll() {
+    try {
+        splashAudio.play();
+    } catch(e) {
+        console.log('Splash audio failed:', e);
+    }
+    splashOverlay.removeEventListener('click', startAll);
+}, { once: true });
 
 // ─────────────────────────────────────────
 //  HIDDEN NOTE — Envelope Modal & Typewriter
