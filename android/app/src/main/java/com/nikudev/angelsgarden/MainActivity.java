@@ -1,4 +1,5 @@
 package com.nikudev.angelsgarden;
+
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
 
