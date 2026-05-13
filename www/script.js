@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────
-//  HTML ELEMENTS SETUP (Upar move kiya taaki error na aaye)
+//  HTML ELEMENTS SETUP
 // ─────────────────────────────────────────
 const canvas        = document.getElementById('doodle-canvas');
 const ctx           = canvas.getContext('2d');
@@ -22,13 +22,12 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// { passive: false } zaroori hai taaki preventDefault() kaam kare mobile par
 canvas.addEventListener('touchstart', startDrawing, { passive: false });
 canvas.addEventListener('touchmove',  draw, { passive: false });
 canvas.addEventListener('touchend',   stopDrawing);
 
 function startDrawing(e) { 
-    e.preventDefault(); // Screen scroll hone se rokega
+    e.preventDefault();
     drawing = true; 
     draw(e); 
 }
@@ -39,8 +38,7 @@ function stopDrawing() {
 
 function draw(e) {
     if (!drawing) return;
-    e.preventDefault(); // Screen scroll hone se rokega
-
+    e.preventDefault();
     const touch = e.touches[0];
     ctx.lineWidth   = brushSize;
     ctx.lineCap     = 'round';
@@ -63,7 +61,6 @@ function draw(e) {
     ctx.moveTo(touch.clientX, touch.clientY);
 }
 
-// Artist Platter Functions
 function updateBrushSize(val) { brushSize = val; }
 function setBrush(type) { brushType = type; }
 function updateColor(color) { brushColor = color; }
@@ -76,11 +73,6 @@ const rainSound   = new Audio('assets/audio/ambient/rain_loop.mp3');
 rainSound.loop    = true;
 const purrSound   = new Audio('assets/audio/cat_purr.mp3');
 const splashAudio = new Audio('assets/audio/splash_audio.mp3');
-
-splashOverlay.addEventListener('click', function startAll() {
-    splashAudio.play();
-    splashOverlay.removeEventListener('click', startAll);
-}, { once: true });
 
 function playHapticPurr() {
     purrSound.play();
@@ -98,10 +90,8 @@ function toggleAudio() {
 }
 
 // ─────────────────────────────────────────
-//  SPLASH — Intro Video + Sanctuary Entry
+//  SPLASH — Tap to Start
 // ─────────────────────────────────────────
-
-// ── SPLASH ──
 let videoStarted = false;
 
 splashOverlay.addEventListener('click', function startAll() {
@@ -109,7 +99,6 @@ splashOverlay.addEventListener('click', function startAll() {
         videoStarted = true;
         introVideo.play().catch(e => {
             console.log('Video play failed:', e);
-            // If video can't play, show note immediately
             splashNote.classList.add('visible');
         });
     }
@@ -129,28 +118,30 @@ introVideo.addEventListener('timeupdate', function () {
     }
 });
 
-// Fallback: show note after 3 seconds no matter what
+// Fallback: show note after 3 seconds
 setTimeout(() => {
     if (!splashNote.classList.contains('visible')) {
         splashNote.classList.add('visible');
     }
 }, 3000);
-};
 
-splashOverlay.addEventListener('click', function startAll() {
-    try {
-        splashAudio.play();
-    } catch(e) {
-        console.log('Splash audio failed:', e);
-    }
-    splashOverlay.removeEventListener('click', startAll);
-}, { once: true });
+splashNote.onclick = () => {
+    splashOverlay.style.opacity = '0';
+    setTimeout(() => {
+        splashOverlay.style.display = 'none';
+        try {
+            rainSound.play();
+        } catch(e) {
+            console.log('Audio play failed:', e);
+        }
+    }, 1000);
+};
 
 // ─────────────────────────────────────────
 //  HIDDEN NOTE — Envelope Modal & Typewriter
 // ─────────────────────────────────────────
 function openHiddenNote() {
-    const fullText = `You found it! ❤️\n\nJust a small gesture for you, My Sweetheart. I hope you like it... Welcome to this tiny world of yours.\n\nAnd no worries, I’m not gonna start with those same old lines here. We both know that. I’m sorry for not keeping up with my words sometimes, My Baby... ❤️\n\nNothing is expected from you here. You are enough. You don’t have to do anything.\n\nJust be.\n\nIt’s your world. Just stay, relax, and breathe.\n\nI love you, My Sweetheart. 😚❤️🎀`;
+    const fullText = `You found it! ❤️\n\nJust a small gesture for you, My Sweetheart. I hope you like it... Welcome to this tiny world of yours.\n\nAnd no worries, I'm not gonna start with those same old lines here. We both know that. I'm sorry for not keeping up with my words sometimes, My Baby... ❤️\n\nNothing is expected from you here. You are enough. You don't have to do anything.\n\nJust be.\n\nIt's your world. Just stay, relax, and breathe.\n\nI love you, My Sweetheart. 😚❤️🎀`;
 
     const noteOverlay = document.createElement('div');
     noteOverlay.id = 'hidden-note-overlay';
@@ -163,7 +154,7 @@ function openHiddenNote() {
     document.body.appendChild(noteOverlay);
 
     let i = 0;
-    const speed = 40; // Typing speed in ms
+    const speed = 40;
     function typeWriter() {
         if (i < fullText.length) {
             document.getElementById("typewriter-text").innerHTML += fullText.charAt(i);
@@ -173,12 +164,11 @@ function openHiddenNote() {
     }
     typeWriter();
     
-    // Envelope ka glow band kardo jab read ho jaye
     const envelope = document.getElementById('envelope-img');
     if(envelope) envelope.classList.remove('glow-active');
 }
 
-// Ensure envelope glows on start
+// Envelope glow on start
 document.addEventListener('DOMContentLoaded', () => {
     const envelope = document.getElementById('envelope-img');
     if(envelope) envelope.classList.add('glow-active');
