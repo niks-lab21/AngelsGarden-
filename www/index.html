@@ -199,10 +199,12 @@
 </head>
 <body>
 
-    <!-- ══ SPLASH OVERLAY ══ -->
+    <!-- ══ SPLASH OVERLAY — Video with black fallback ══ -->
     <div id="splash-overlay">
-        <video id="intro-video" src="assets/videos/splash.mp4" muted playsinline></video>
-        <div id="splash-note" class="hidden">
+        <video id="intro-video" src="assets/videos/splash.mp4" muted playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1;"></video>
+        <!-- Black fallback behind video -->
+        <div id="splash-fallback" style="position:absolute; inset:0; background:#000; z-index:0;"></div>
+        <div id="splash-note" class="hidden" style="position:absolute; z-index:2;">
             <p>
                 "A safe sanctuary for you, My Sweetheart ❤️🎀<br><br>
                 Let your soul rest here whenever life gets too loud.<br>
@@ -214,12 +216,12 @@
     </div>
 
     <!-- Background video — NO autoplay (started via JS after tap) -->
-    <video muted loop id="main-video-bg">
+    <video muted loop id="main-video-bg" style="position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; pointer-events:none;">
         <source src="assets/videos/main_sanctuary.mp4" type="video/mp4">
     </video>
 
     <!-- Media Dock -->
-    <div id="media-dock" class="hidden-dock">
+    <div id="media-dock" class="hidden-dock" style="position:relative; z-index:100;">
         <div class="swipe-handle"></div>
         <div class="controls">
             <div id="track-info">The Angel's Garden Radio</div>
@@ -269,11 +271,13 @@
         </div>
     </div>
 
-    <canvas id="doodle-canvas"></canvas>
+    <canvas id="doodle-canvas" style="position:fixed; inset:0; z-index:10; pointer-events:auto; touch-action:none;"></canvas>
 
-    <div id="interaction-layer">
-        <div id="cat-trigger" onclick="playHapticPurr()"></div>
-        <div id="envelope-trigger" onclick="openHiddenNote()"></div>
+    <div id="interaction-layer" style="position:fixed; inset:0; z-index:20; pointer-events:none;">
+        <div id="cat-trigger" onclick="playHapticPurr()" style="position:absolute; width:90px; height:90px; bottom:180px; left:20px; border-radius:50%; pointer-events:auto; cursor:pointer;"></div>
+        <div id="envelope-trigger" onclick="openHiddenNote()" style="position:absolute; width:60px; height:60px; top:20px; right:20px; border-radius:12px; pointer-events:auto; cursor:pointer;">
+            <img src="assets/images/envelope.png" id="envelope-img" alt="Secret Note" style="width:100%; height:100%;">
+        </div>
     </div>
 
     <script src="script.js"></script>
