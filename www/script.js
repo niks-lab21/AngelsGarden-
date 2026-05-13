@@ -129,6 +129,9 @@ splashNote.onclick = () => {
     splashOverlay.style.opacity = '0';
     setTimeout(() => {
         splashOverlay.style.display = 'none';
+        // Start background video
+        const bgVideo = document.getElementById('main-video-bg');
+        if(bgVideo) bgVideo.play().catch(e => console.log('BG video failed:', e));
         try {
             rainSound.play();
         } catch(e) {
