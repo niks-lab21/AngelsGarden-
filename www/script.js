@@ -90,15 +90,30 @@ function toggleAudio() {
 }
 
 // ─────────────────────────────────────────
-//  SPLASH — Tap to Start
+//  SPLASH — Tap to Start with Video Fallback
 // ─────────────────────────────────────────
 let videoStarted = false;
+let videoFailed = false;
+
+// Try to detect if video is actually playing
+introVideo.addEventListener('canplay', () => {
+    console.log('Video can play');
+});
+introVideo.addEventListener('error', (e) => {
+    console.log('Video error:', e);
+    videoFailed = true;
+    splashNote.classList.add('visible');
+});
 
 splashOverlay.addEventListener('click', function startAll() {
     if (!videoStarted) {
         videoStarted = true;
-        introVideo.play().catch(e => {
+        // Try to play video
+        introVideo.play().then(() => {
+            console.log('Video playing');
+        }).catch(e => {
             console.log('Video play failed:', e);
+            videoFailed = true;
             splashNote.classList.add('visible');
         });
     }
@@ -118,7 +133,7 @@ introVideo.addEventListener('timeupdate', function () {
     }
 });
 
-// Fallback: show note after 3 seconds
+// Fallback: show note after 3 seconds no matter what
 setTimeout(() => {
     if (!splashNote.classList.contains('visible')) {
         splashNote.classList.add('visible');
@@ -129,9 +144,15 @@ splashNote.onclick = () => {
     splashOverlay.style.opacity = '0';
     setTimeout(() => {
         splashOverlay.style.display = 'none';
-        // Start background video
+        // Start background video (or show black if failed)
         const bgVideo = document.getElementById('main-video-bg');
-        if(bgVideo) bgVideo.play().catch(e => console.log('BG video failed:', e));
+        if(bgVideo) {
+            bgVideo.play().catch(e => {
+                console.log('BG video failed:', e);
+                // Show black background as fallback
+                document.body.style.background = '#0d0805';
+            });
+        }
         try {
             rainSound.play();
         } catch(e) {
