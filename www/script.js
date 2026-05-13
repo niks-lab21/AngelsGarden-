@@ -102,6 +102,25 @@ function toggleAudio() {
 // ─────────────────────────────────────────
 
 // ── SPLASH ──
+let videoStarted = false;
+
+splashOverlay.addEventListener('click', function startAll() {
+    if (!videoStarted) {
+        videoStarted = true;
+        introVideo.play().catch(e => {
+            console.log('Video play failed:', e);
+            // If video can't play, show note immediately
+            splashNote.classList.add('visible');
+        });
+    }
+    try {
+        splashAudio.play();
+    } catch(e) {
+        console.log('Splash audio failed:', e);
+    }
+    splashOverlay.removeEventListener('click', startAll);
+}, { once: true });
+
 introVideo.addEventListener('timeupdate', function () {
     if (this.currentTime >= 13) splashNote.classList.add('visible');
     if (this.currentTime >= 17) {
@@ -110,23 +129,12 @@ introVideo.addEventListener('timeupdate', function () {
     }
 });
 
-// Fallback: if video fails to load, show note after 3 seconds
+// Fallback: show note after 3 seconds no matter what
 setTimeout(() => {
     if (!splashNote.classList.contains('visible')) {
         splashNote.classList.add('visible');
     }
 }, 3000);
-
-splashNote.onclick = () => {
-    splashOverlay.style.opacity = '0';
-    setTimeout(() => {
-        splashOverlay.style.display = 'none';
-        try {
-            rainSound.play();
-        } catch(e) {
-            console.log('Audio play failed:', e);
-        }
-    }, 1000);
 };
 
 splashOverlay.addEventListener('click', function startAll() {
