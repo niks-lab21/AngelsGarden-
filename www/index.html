@@ -180,27 +180,6 @@
             transition: height 0.3s ease;
         }
 
-        /* ── Splash Overlay Styles ── */
-        #tap-to-start {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-family: serif;
-            letter-spacing: 3px;
-            text-align: center;
-            z-index: 10;
-            cursor: pointer;
-            text-shadow: 0 0 15px rgba(0,0,0,0.8);
-            animation: fadeInOut 2.5s ease-in-out infinite;
-        }
-
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
-        }
-
         /* ── Landscape — compact layout ── */
         @media (orientation: landscape) {
             #player-header  { padding: 7px 12px; }
@@ -216,16 +195,44 @@
             #spotify-chips  { padding: 10px 14px; }
             #spotify-chips .chip { padding: 6px 13px; font-size: 12px; }
         }
+
+        /* ── TAP TO START HINT (BATTERY SAVER FIX) ── */
+        #tap-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffd700;
+            font-family: 'Crimson Pro', serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+            z-index: 10005; /* This ensures it's above everything, even the black play button */
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            pointer-events: none;
+            animation: pulseGlow 2s infinite;
+            text-align: center;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+        }
     </style>
 </head>
 <body>
 
     <div id="splash-overlay" onclick="startExperience()" style="position:fixed; inset:0; z-index:9999; cursor:pointer;">
-        <video id="intro-video" src="assets/videos/splash.mp4" muted playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1;"></video>
-        <div id="tap-to-start">[ Tap to Enter Sanctuary ]</div>
+        
+        <div id="tap-hint">[ Tap to Open Your Gift 🎁 ]</div>
+
+        <video id="intro-video" src="assets/videos/splash.mp4" muted playsinline poster="assets/images/lotus_fallback.png" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1;"></video>
+        
         <div id="splash-fallback" style="position:absolute; inset:0; background:#000; z-index:0;"></div>
         
-        <div id="splash-note" class="hidden" style="position:absolute; z-index:10; pointer-events:auto;">
+        <div id="splash-note" class="hidden" style="position:absolute; z-index:2;">
             <p>
                 "A safe sanctuary for you, My Sweetheart ❤️🎀<br><br>
                 Let your soul rest here whenever life gets too loud.<br>
@@ -247,6 +254,7 @@
             <button onclick="toggleAudio()">Play/Pause</button>
 
             <div id="player-shell">
+
                 <div id="player-header" onclick="toggleExpand()">
                     <div class="audio-bars">
                         <span></span><span></span><span></span><span></span>
@@ -277,8 +285,9 @@
                         referrerpolicy="strict-origin-when-cross-origin">
                     </iframe>
                 </div>
+
             </div>
-        </div>
+            </div>
     </div>
 
     <canvas id="doodle-canvas" style="position:fixed; inset:0; z-index:10; pointer-events:auto; touch-action:none;"></canvas>
@@ -293,26 +302,31 @@
     <script src="script.js"></script>
     <script>
         // ─────────────────────────────────────────
-        //  TRIGGER SYSTEM (Battery Saver Bypass)
+        //  BATTERY SAVER BYPASS LOGIC
         // ─────────────────────────────────────────
         function startExperience() {
             const video = document.getElementById('intro-video');
-            const tapText = document.getElementById('tap-to-start');
+            const hint = document.getElementById('tap-hint');
+            const overlay = document.getElementById('splash-overlay');
             
-            // Unmute and Play
+            // 1. Unmute and force play the video
             video.muted = false;
-            video.play();
-            tapText.style.display = 'none';
-
-            // Also trigger audio objects if they exist in script.js
-            if (typeof splashAudio !== 'undefined') splashAudio.play();
+            video.play().catch(e => console.log("Video Error (Battery Saver):", e));
             
-            // Remove the trigger to prevent double-tap issues
-            document.getElementById('splash-overlay').removeAttribute('onclick');
+            // 2. Hide the glowing text
+            if(hint) hint.style.display = 'none';
+            
+            // 3. Remove the click listener so it doesn't fire again
+            overlay.onclick = null;
+            
+            // 4. Play the splash audio if it exists in script.js
+            if(typeof splashAudio !== 'undefined') {
+                splashAudio.play().catch(e => console.log("Audio Error:", e));
+            }
         }
 
         // ─────────────────────────────────────────
-        //  PLAYLIST CONFIG
+        //  PLAYLIST CONFIG — All your videos
         // ─────────────────────────────────────────
         const PLAYLISTS = {
             vibe: [
@@ -352,6 +366,7 @@
             ],
         };
 
+        // Orientation-aware heights
         function getIframeH(type) {
             const portrait = window.innerWidth < window.innerHeight;
             if (type === 'youtube') return portrait ? '200' : '150';
@@ -367,6 +382,7 @@
         let currentChip = 0;
         let isExpanded  = false;
 
+        // Toggle iframe expand
         function toggleExpand() {
             isExpanded = !isExpanded;
             const wrapper = document.getElementById('iframe-wrapper');
@@ -375,6 +391,7 @@
             document.getElementById('expand-arrow').classList.toggle('open', isExpanded);
         }
 
+        // Switch category tab
         function switchTab(tab) {
             currentTab  = tab;
             currentChip = 0;
@@ -386,6 +403,7 @@
             loadPlaylist(0);
         }
 
+        // Render playlist chips
         function renderChips() {
             const container = document.getElementById('spotify-chips');
             container.innerHTML = '';
@@ -406,22 +424,25 @@
             });
         }
 
+        // Load playlist into iframe
         function loadPlaylist(index) {
             const p       = PLAYLISTS[currentTab][index];
             const iframe  = document.getElementById('spotify-iframe');
             const wrapper = document.getElementById('iframe-wrapper');
 
+            // Empty ID guard
             if (!p.id) {
-                document.getElementById('now-playing').innerHTML = `${p.label}  <span>Coming soon…</span>`;
+                document.getElementById('now-playing').innerHTML =
+                    `${p.label} &nbsp;<span>Coming soon…</span>`;
                 return;
             }
 
+            // YouTube vs Spotify (Fixed Spotify URL structure!)
             if (p.type === 'youtube') {
                 iframe.src    = `https://www.youtube-nocookie.com/embed/${p.id}?rel=0&modestbranding=1`;
                 iframe.height = getIframeH('youtube');
                 if (isExpanded) wrapper.style.maxHeight = getWrapperH('youtube');
             } else {
-                // Sahi format: open.spotify.com/embed/...
                 iframe.src    = `https://open.spotify.com/embed/${p.type}/${p.id}?utm_source=generator&theme=0`;
                 iframe.height = getIframeH(p.type);
                 if (isExpanded) wrapper.style.maxHeight = getWrapperH(p.type);
@@ -431,9 +452,11 @@
                 vibe: '✨ Vibe', nature: '🌿 Nature',
                 peace: '☁️ Peace', sleep: '🌙 Sleep', youtube: '📺 YouTube'
             };
-            document.getElementById('now-playing').innerHTML = `${p.label}  <span>${catLabel[currentTab]}</span>`;
+            document.getElementById('now-playing').innerHTML =
+                `${p.label} &nbsp;<span>${catLabel[currentTab]}</span>`;
         }
 
+        // Init
         renderChips();
         loadPlaylist(0);
     </script>
