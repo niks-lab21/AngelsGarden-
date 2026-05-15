@@ -8,7 +8,7 @@ const splashNote    = document.getElementById('splash-note');
 const splashOverlay = document.getElementById('splash-overlay');
 
 // ─────────────────────────────────────────
-//  CANVAS — Doodle Layer
+//  CANVAS — Doodle Layer (Scroll Bug Fixed)
 // ─────────────────────────────────────────
 let drawing    = false;
 let brushSize  = 5;
@@ -22,6 +22,7 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
+// { passive: false } ensures preventDefault() stops mobile scrolling while drawing
 canvas.addEventListener('touchstart', startDrawing, { passive: false });
 canvas.addEventListener('touchmove',  draw, { passive: false });
 canvas.addEventListener('touchend',   stopDrawing);
@@ -75,7 +76,7 @@ const purrSound   = new Audio('assets/audio/cat_purr.mp3');
 const splashAudio = new Audio('assets/audio/splash_audio.mp3');
 
 function playHapticPurr() {
-    purrSound.play();
+    purrSound.play().catch(e => console.log("Purr Audio Error:", e));
     if (navigator.vibrate) {
         navigator.vibrate([100, 50, 100]);
     }
@@ -83,81 +84,49 @@ function playHapticPurr() {
 
 function toggleAudio() {
     if (rainSound.paused) {
-        rainSound.play();
+        rainSound.play().catch(e => console.log("Rain Audio Error:", e));
     } else {
         rainSound.pause();
     }
 }
 
 // ─────────────────────────────────────────
-//  SPLASH — Tap to Start with Video Fallback
+//  SPLASH — Flow & Note Logic
 // ─────────────────────────────────────────
-let videoStarted = false;
-let videoFailed = false;
-
-// Try to detect if video is actually playing
-introVideo.addEventListener('canplay', () => {
-    console.log('Video can play');
-});
-introVideo.addEventListener('error', (e) => {
-    console.log('Video error:', e);
-    videoFailed = true;
-    splashNote.classList.add('visible');
-});
-
-splashOverlay.addEventListener('click', function startAll() {
-    if (!videoStarted) {
-        videoStarted = true;
-        // Try to play video
-        introVideo.play().then(() => {
-            console.log('Video playing');
-        }).catch(e => {
-            console.log('Video play failed:', e);
-            videoFailed = true;
-            splashNote.classList.add('visible');
-        });
-    }
-    try {
-        splashAudio.play();
-    } catch(e) {
-        console.log('Splash audio failed:', e);
-    }
-    splashOverlay.removeEventListener('click', startAll);
-}, { once: true });
-
+// Timer for the hidden note to appear over the video
 introVideo.addEventListener('timeupdate', function () {
     if (this.currentTime >= 13) splashNote.classList.add('visible');
     if (this.currentTime >= 17) {
         this.pause();
-        this.currentTime = 17;
+        this.currentTime = 17; // Freeze on Lotus
     }
 });
 
-// Fallback: show note after 3 seconds no matter what
+// Fallback: If video is completely broken, show note after 4 seconds anyway
 setTimeout(() => {
-    if (!splashNote.classList.contains('visible')) {
+    if (splashNote && !splashNote.classList.contains('visible')) {
         splashNote.classList.add('visible');
     }
-}, 3000);
+}, 4000);
 
-splashNote.onclick = () => {
+// When Aaru taps the note, fade out the overlay and enter the room
+splashNote.onclick = (e) => {
+    e.stopPropagation(); // Prevents tapping the note from triggering the 'startExperience' again
     splashOverlay.style.opacity = '0';
     setTimeout(() => {
         splashOverlay.style.display = 'none';
-        // Start background video (or show black if failed)
+        
+        // Start background main video
         const bgVideo = document.getElementById('main-video-bg');
         if(bgVideo) {
             bgVideo.play().catch(e => {
-                console.log('BG video failed:', e);
-                // Show black background as fallback
+                console.log('BG video failed, showing fallback background:', e);
                 document.body.style.background = '#0d0805';
             });
         }
-        try {
-            rainSound.play();
-        } catch(e) {
-            console.log('Audio play failed:', e);
-        }
+        
+        // Start rain sound
+        rainSound.play().catch(e => console.log('Rain sound failed to auto-play:', e));
     }, 1000);
 };
 
@@ -188,6 +157,7 @@ function openHiddenNote() {
     }
     typeWriter();
     
+    // Stop envelope from glowing once read
     const envelope = document.getElementById('envelope-img');
     if(envelope) envelope.classList.remove('glow-active');
 }
